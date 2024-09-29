@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplication Quiz Game</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #4a90e2;
+    }
+
+    .number-selection {
+      margin-bottom: 30px;
+    }
+
+    .number-selection h3 {
+      font-size: 1.5em;
+      color: #666;
+    }
+
+    /* Responsive number selection buttons */
+    .number-selection #numberButtons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .number-selection button {
+      padding: 15px;
+      margin: 5px;
+      font-size: 18px;
+      background-color: #fff;
+      border: 2px solid #4a90e2;
+      color: #4a90e2;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      min-width: 50px;
+      flex: 1 0 20%; /* Make buttons responsive and evenly spaced */
+    }
+
+    .number-selection button:hover {
+      background-color: #4a90e2;
+      color: #fff;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      margin-top: 20px;
+      width: 90%;
+    }
+
+    td {
+      padding: 15px;
+      text-align: center;
+      border-radius: 10px;
+      font-size: 1.2em;
+      background-color: #ffffff;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    input {
+      width: 60px;
+      padding: 10px;
+      text-align: center;
+      font-size: 1em;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      transition: all 0.2s ease;
+    }
+
+    input:focus {
+      border-color: #4a90e2;
+      outline: none;
+    }
+
+    button#check {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 16px;
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    button#check:hover {
+      background-color: #357abd;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: green;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Styles for revealing correct answers */
+    .correct-answer {
+      display: none;
+      color: #d9534f; /* Red color for wrong answers */
+      font-size: 0.9em;
+    }
+
+    .show-answer {
+      display: block;
+    }
+
+    input.wrong {
+      border: 2px solid red;
+    }
+
+    input.correct {
+      border: 2px solid lightgreen;
+    }
+
+    /* Responsive Design: Make the table stack vertically on small screens */
+    @media (max-width: 768px) {
+      table {
+        width: 100%;
+      }
+
+      td {
+        padding: 10px;
+        font-size: 1em;
+      }
+
+      input {
+        width: 50px;
+      }
+
+      .number-selection button {
+        padding: 10px;
+        font-size: 16px;
+        min-width: 40px;
+        flex: 1 0 30%; /* Adjust for better mobile button layout */
+      }
+
+      button#check {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+    }
+
+    /* Extra small devices (phones) */
+    @media (max-width: 576px) {
+      .number-selection button {
+        padding: 8px;
+        font-size: 14px;
+        flex: 1 0 45%; /* Allow two buttons per row on very small screens */
+      }
+
+      input {
+        width: 40px;
+      }
+
+      td {
+        padding: 8px;
+        font-size: 0.9em;
+      }
+
+      button#check {
+        padding: 8px 15px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Multiplication Exercise</h1>
+
+  <div class="number-selection" id="numberSelection">
+    <h3>Select a number to start:</h3>
+    <div id="numberButtons">
+      <!-- Number buttons will be generated here -->
+    </div>
+  </div>
+
+  <div id="quizSection" class="hidden">
+    <h3>Fill in the blanks for number <span id="selectedNumber"></span>:</h3>
+    <table id="multiplicationTable">
+      <!-- The table will be generated here -->
+    </table>
+    <button id="check" onclick="checkAnswers()">Check Answers</button>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    // Generate number buttons
+    function createNumberButtons() {
+      const numberButtonsContainer = document.getElementById('numberButtons');
+      for (let i = 1; i <= 20; i++) {
+        const button = document.createElement('button');
+        button.textContent = i;
+        button.onclick = () => startQuiz(i);
+        numberButtonsContainer.appendChild(button);
+      }
+    }
+
+    // Start quiz for selected number
+    function startQuiz(number) {
+      document.getElementById('selectedNumber').textContent = number;
+      document.getElementById('quizSection').classList.remove('hidden');
+      document.getElementById('numberSelection').classList.add('hidden'); // Hide number buttons
+      createTable(number);
+    }
+
+    // Create horizontal multiplication table with split rows
+    function createTable(number) {
+      const table = document.getElementById("multiplicationTable");
+      table.innerHTML = ''; // Clear previous table
+      
+      let row1 = document.createElement("tr"); // First row
+      let row2 = document.createElement("tr"); // Second row
+      
+      for (let i = 1; i <= 10; i++) {
+        const questionCell = document.createElement("td");
+        const inputCell = document.createElement("td");
+        
+        const correctAnswer = i * number;
+        
+        questionCell.textContent = `${i} × ${number} =`;
+        inputCell.innerHTML = `<input type="number" data-correct="${correctAnswer}">
+                               <span class="correct-answer">Correct: ${correctAnswer}</span>`;
+        
+        // Append the first 5 questions to the first row
+        if (i <= 5) {
+          row1.appendChild(questionCell);
+          row1.appendChild(inputCell);
+        } 
+        // Append the next 5 questions to the second row
+        else {
+          row2.appendChild(questionCell);
+          row2.appendChild(inputCell);
+        }
+      }
+      
+      // Append both rows to the table
+      table.appendChild(row1);
+      table.appendChild(row2);
+    }
+
+    // Check if the answers are correct and show number buttons again
+    function checkAnswers() {
+      const inputs = document.querySelectorAll("#multiplicationTable input");
+      let allCorrect = true;
+      inputs.forEach(input => {
+        const correctValue = input.getAttribute("data-correct");
+        const correctAnswerSpan = input.nextElementSibling; // The correct answer span
+        if (input.value != correctValue) {
+          allCorrect = false;
+          input.classList.add("wrong"); // Add red border for wrong answer
+          correctAnswerSpan.classList.add("show-answer"); // Show correct answer
+        } else {
+          input.classList.remove("wrong");
+          input.classList.add("correct"); // Add green border for correct answer
+          correctAnswerSpan.classList.remove("show-answer"); // Hide the correct answer if correct
+        }
+      });
+
+      const result = document.getElementById("result");
+      if (allCorrect) {
+        result.textContent = "Well done! All answers are correct, nice one Baby!";
+      } else {
+        result.textContent = "May mali ka Baby pero, ok lang yan! 😉 check mo nalang yung tamang sagot";
+      }
+
+      // Show number buttons again after checking answers
+      document.getElementById('numberSelection').classList.remove('hidden');
+    }
+
+    // Initialize the number buttons on load
+    window.onload = createNumberButtons;
+  </script>
+</body>
+</html>
